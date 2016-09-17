@@ -198,6 +198,6 @@ router.post('/:rid', function (req, res) {
 			})
 		});
 	});
-}
+});
 
 module.exports = router;
