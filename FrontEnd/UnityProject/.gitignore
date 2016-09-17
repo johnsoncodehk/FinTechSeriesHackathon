@@ -1,0 +1,22 @@
+# Unity
+**/UnityProject/[Ll]ibrary/
+**/UnityProject/[Tt]emp/
+**/UnityProject/[Oo]bj/
+**/UnityProject/[Bb]uild/
+**/UnityProject/[Bb]uilds/
+**/UnityProject/Assets/AssetStoreTools*
+**/UnityProject/ExportedObj/
+**/UnityProject/**/*.csproj
+**/UnityProject/**/*.unityproj
+**/UnityProject/**/*.sln
+**/UnityProject/**/*.suo
+**/UnityProject/**.tmp
+**/UnityProject/**/*.user
+**/UnityProject/**/*.userprefs
+**/UnityProject/**/*.pidb
+**/UnityProject/**/*.booproj
+**/UnityProject/**/*.svd
+**/UnityProject/**/*.pidb.meta
+**/UnityProject/sysinfo.txt
+**/UnityProject/**/*.apk
+**/UnityProject/**/*.unitypackage
