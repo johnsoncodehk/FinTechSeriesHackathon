@@ -5,7 +5,7 @@
 	    <meta name="viewport" content="initial-scale=1.0">
     <meta charset="utf-8">
 	
-	<link href='css/semantic.min.css' media='all' rel='stylesheet' type='text/css'/>
+	<link href='css/semantic.css' media='all' rel='stylesheet' type='text/css'/>
 	
 	<script src='js/Map.js'></script>
 	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCWVwl0TPgLky44Dah6hQShGuJTNo1y5bU&callback=initMap&signed_in=true"
@@ -13,9 +13,26 @@
     </style>
   </head>
 	<body>
-
-			<div class="dividing header ui" id="map">
+		<div class="ui left fixed inverted vertical menu" id="MainMenu">
+		    <div class="item">
+				<div class="header">Customer</div>
+				<div class="menu">
+				  <a class="item">Add</a>
+				  <a class="item">List</a>
+				</div>
 			</div>
+		    <div class="item">
+				<div class="header">Default Device</div>
+				<div class="menu">
+				  <a class="item">Add</a>
+				  <a class="item">List</a>
+				</div>
+			</div>
+		</div>
+		  <div id="loading" class="ui active dimmer" style="visibility:hidden" >
+    <div class="ui loader"></div>
+  </div>
+		<div id="map"></div>
 
 	</body>
 </html>
