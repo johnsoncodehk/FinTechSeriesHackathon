@@ -17,7 +17,6 @@ var router = express.Router();
 router.post('/', function (req, res) {
     
     var reqObj = req.body;
-     console.log(reqObj);
     
     if (!reqObj.uname || !reqObj.pwd) {
         res.status('401').send('Login Fail');
@@ -32,7 +31,7 @@ router.post('/', function (req, res) {
           return;
       }
       // Use the connection 
-      // 
+ 
       var sql = 'SELECT * FROM USER WHERE USER_NAME = ? AND USER_PASSWORD = ? LIMIT 1';
       var arg = [reqObj.uname, reqObj.pwd];
         

@@ -29,10 +29,10 @@ router.post('/', function (req, res) {
           res.status('502').send('Bad Gateway');
           return;
       }
-        
       // Use the connection 
       var sql = 'SELECT * FROM USER WHERE USER_NAME = ? OR USER_PHONE = ? LIMIT 1';
       var arg = [reqObj.uname, reqObj.phoneNo];
+        
       connection.query(sql, arg, function(err, rows) {         
         
         if (err) {
