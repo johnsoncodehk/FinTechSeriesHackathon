@@ -82,7 +82,7 @@ public class GoogleMap : MonoBehaviour
 		if (req.exception == null) {
 			var tex = new Texture2D (size, size);
 			tex.LoadImage (req.response.Bytes);
-			renderer.material.mainTexture = tex;
+			GetComponent<Renderer>().material.mainTexture = tex;
 		}
 	}
 	
