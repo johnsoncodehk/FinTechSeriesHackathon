@@ -211,19 +211,25 @@ router.post('/rid/:rid', function (req, res) {
 	});
 });
 
-router.get('/history/:uid', function (req, res) {
+router.get('/history', function (req, res) {
+    
+     if (!req.session.user) {
+       res.redirect('/login');
+       return;
+    } 
+    
+    var uid = req.session.user.ID;
     
     pool.getConnection(function(err, connection) {
       
       if (err) {
-          console.log('history connection err = ' + err);
+          console.log('request connection err = ' + err);
           res.status('502').send('Bad Gateway');
           return;
       }
       // Use the connection 
         
-      var sql = 'SELECT *, UNIX_TIMESTAMP(END_DATE) AS `EDATE` FROM `ON_AIR_REQUEST` WHERE `END_DATE` ';
-        
+      var sql = 'SELECT *,UNIX_TIMESTAMP(END_DATE) AS EDATE FROM ON_AIR_REQUEST';
       connection.query(sql, function(err, rows) {
 
         if (err) {
@@ -235,6 +241,8 @@ router.get('/history/:uid', function (req, res) {
         var requestIDAry = [];
         var requestCountObj = {};
         var requestShopAry= [];
+        var requestFilterAry = [];
+        var filteredAry = [];
         
         rows.forEach(function (row) {
             
@@ -263,6 +271,9 @@ router.get('/history/:uid', function (req, res) {
 
              rows2.forEach( function(row) {
                  requestCountObj[row.REQUEST_ID] = requestCountObj[row.REQUEST_ID] + 1 || 1;
+                 if (row.UID === uid) {
+                     requestFilterAry.push(row.REQUEST_ID);
+                 }
              }); 
              
              sql = 'SELECT * FROM SHOP WHERE SID IN (?)';
@@ -289,34 +300,40 @@ router.get('/history/:uid', function (req, res) {
                  
                  rows.forEach(function (row) {
    
-                     row['id'] = row.ID;
-                     row['uid'] = row.UID;
-                     row['price'] = row.PRICE;
-                     row['qty'] = row.QUANTITY;
-                     row['remark'] = row.REMARK;
-                     row['end_date'] = row.EDATE;
-                     row['status'] = row.STATUS;
-                     row['shop_id'] = row.SHOP_ID;
-                     row['product_desc'] = row.PRODUCT_DESC;
+                     if (row.UID === uid || requestFilterAry.indexOf(row.ID) !== -1) {
+                         row['id'] = row.ID;
+                         row['uid'] = row.UID;
+                         row['price'] = row.PRICE;
+                         row['qty'] = row.QUANTITY;
+                         row['remark'] = row.REMARK;
+                         row['end_date'] = row.EDATE;
+                         row['status'] = row.STATUS;
+                         row['shop_id'] = row.SHOP_ID;
+                         row['product_desc'] = row.PRODUCT_DESC;
 
-                     delete row['PRODUCT_DESC'];
-                     delete row['ID'];
-                     delete row['UID'];
-                     delete row['PRICE'];
-                     delete row['QUANTITY'];
-                     delete row['REMARK'];
-                     delete row['EDATE'];
-                     delete row['STATUS'];
-                     delete row['SHOP_ID'];
+                         delete row['PRODUCT_DESC'];
+                         delete row['ID'];
+                         delete row['UID'];
+                         delete row['PRICE'];
+                         delete row['QUANTITY'];
+                         delete row['REMARK'];
+                         delete row['EDATE'];
+                         delete row['STATUS'];
+                         delete row['SHOP_ID'];
+
+                         delete row['END_DATE'];
+                         delete row['CREATE_DATE'];
+                         row['count'] = requestCountObj[row.ID] || 0;
+                         row['shop_data'] = shopAry[row.shop_id];
+                         
+                         filteredAry.push(row);
+                     }
                      
-                     delete row['END_DATE'];
-                     delete row['CREATE_DATE'];
-                     row['count'] = requestCountObj[row.ID] || 0;
-                     row['shop_data'] = shopAry[row.shop_id];
+                     
                  });
                  
                  connection.release();
-                 res.status('200').json(rows);
+                 res.status('200').json(filteredAry);
              });
              
          });
