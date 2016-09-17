@@ -16,7 +16,7 @@ var router = express.Router();
 router.use(function (req, res, next) {
 
 	if (!req.session.user) {
-		res.redirect('/login');
+		res.redirect('/create');
 		next();
 	}
 
