@@ -1,7 +1,8 @@
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
-public class GoogleMap : MonoBehaviour
+public class MyGoogleMap : MonoBehaviour
 {
 	public enum MapType
 	{
@@ -12,19 +13,28 @@ public class GoogleMap : MonoBehaviour
 	}
 	public bool loadOnStart = true;
 	public bool autoLocateCenter = true;
-	public GoogleMapLocation centerLocation;
-	public int zoom = 13;
+	public int zoom;
 	public MapType mapType;
 	public int size = 512;
 	public bool doubleResolution = false;
 	public GoogleMapMarker[] markers;
 	public GoogleMapPath[] paths;
+	public float p = 1;
 
+	private SpriteRenderer spriteRenderer;
+
+	void Awake () {
+		this.spriteRenderer = this.GetComponent<SpriteRenderer> ();
+	}
 	void Start() {
 		if(loadOnStart) Refresh();
 	}
+	void OnEnable () {
+		this.Refresh ();
+	}
 
 	public void Refresh() {
+		print ("Refresh");
 		if(autoLocateCenter && (markers.Length == 0 && paths.Length == 0)) {
 			Debug.LogError("Auto Center will only work if paths or markers are used.");
 		}
@@ -36,11 +46,17 @@ public class GoogleMap : MonoBehaviour
 		var url = "http://maps.googleapis.com/maps/api/staticmap";
 		var qs = "";
 		if (!autoLocateCenter) {
-			if (centerLocation.address != "")
-				qs += "center=" + WWW.UnEscapeURL (centerLocation.address);
-			else {
-				qs += "center=" + WWW.UnEscapeURL (string.Format ("{0},{1}", centerLocation.latitude, centerLocation.longitude));
-			}
+			Vector2 location = this.transform.position;
+
+			// Vector2 location = this.transform.parent.position;
+			// print ((this.transform.localPosition.x > 0 ? 1 : -1) * Mathf.Pow (0.5f, this.zoom) / 2);
+			// location.x += (this.transform.localPosition.x > 0 ? 1 : -1) * Mathf.Pow (0.5f, this.zoom) / 2;
+			// location.y += (this.transform.localPosition.y > 0 ? 1 : -1) * Mathf.Pow (0.5f, this.zoom) / 2;
+
+			location *= Mathf.Pow (0.5f, zoom);
+			location.x *= 1440;
+			location.y *= this.p;
+			qs += "center=" + WWW.UnEscapeURL (string.Format ("{0},{1}", location.y, location.x));
 
 			qs += "&zoom=" + zoom.ToString ();
 		}
@@ -75,60 +91,43 @@ public class GoogleMap : MonoBehaviour
 		}
 
 
+		print (qs);
 		var req = new WWW (url + "?" + qs);
 		yield return req;
+
+		var tex = req.texture;
+		Rect rec = new Rect(0, 0, tex.width, tex.height);
 		if (string.IsNullOrEmpty (req.error)) {
-			GetComponent<Renderer>().material.mainTexture = req.texture;
+			GetComponent<SpriteRenderer> ().sprite = Sprite.Create(tex,rec,new Vector2(0.5f,0.5f),512);
 		}
 	}
 
-
-}
-
-public enum GoogleMapColor
-{
-	black,
-	brown,
-	green,
-	purple,
-	yellow,
-	blue,
-	gray,
-	orange,
-	red,
-	white
-}
-
-[System.Serializable]
-public class GoogleMapLocation
-{
-	public string address;
-	public float latitude;
-	public float longitude;
-}
-
-[System.Serializable]
-public class GoogleMapMarker
-{
-	public enum GoogleMapMarkerSize
-	{
-		Tiny,
-		Small,
-		Mid
+	public bool createSubs = false;
+	void Update () {
+		if (this.createSubs) {
+			this.createSubs = false;
+			this.ShowSubs ();
+		}
 	}
-	public GoogleMapMarkerSize size;
-	public GoogleMapColor color;
-	public string label;
-	public GoogleMapLocation[] locations;
-
-}
-
-[System.Serializable]
-public class GoogleMapPath
-{
-	public int weight = 5;
-	public GoogleMapColor color;
-	public bool fill = false;
-	public GoogleMapColor fillColor;
-	public GoogleMapLocation[] locations;
+	public void ShowSubs () {
+		if (this.transform.childCount > 0) {
+			return;
+		}
+		var newMap = Instantiate (this);
+		newMap.gameObject.SetActive (false);
+		newMap.transform.SetParent (this.transform, false);
+		// this.CreateSub (0f, 0f, newMap);
+		this.CreateSub (-.5f, 0f, newMap);
+		this.CreateSub (.5f, 0f, newMap);
+		Destroy (newMap.gameObject);
+		this.spriteRenderer.enabled = false;
+		this.transform.localScale /= 2f;
+	}
+	private void CreateSub (float x, float y, MyGoogleMap map) {
+		var newMap = Instantiate (map);
+		newMap.transform.SetParent (this.transform, false);
+		newMap.transform.localPosition = new Vector3 (x, y, 0);
+		newMap.zoom = this.zoom + 1;
+		newMap.gameObject.SetActive (true);
+	}
 }
