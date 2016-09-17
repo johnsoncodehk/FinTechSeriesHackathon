@@ -1,5 +1,6 @@
 var map;
 function initMap() {
+	var item ;
     map = new google.maps.Map(document.getElementById('map'),{
         center: {
             lat: 22.28056,
@@ -38,21 +39,24 @@ function initMap() {
                 title: 'Hello World!'
             });
             marker.addListener('click', function() {
+				if(!document.getElementById("GroupMenu")){
                 document.getElementById('MainMenu').style.visibility = 'none';
 				//document.getElementById('loading').style.visibility = 'visible';
 				
 				var iDiv = document.createElement('div');
 				iDiv.id = 'GroupMenu';
 				iDiv.className = 'ui left fixed inverted vertical menu';
-				
 				var GroupList;
-				for(var index = 0; index < 20; index++){
-					var item = document.createElement('A');
+				for(var index = 0; index < 100; index++){
+					item = document.createElement('A');
 					item.className = "item";
+					item.id = index;
 					item.innerHTML = index;
+					item.onclick = function(){var evtItem = this;alert(evtItem.id);};
 					iDiv.appendChild(item);
 				}
 				document.getElementsByTagName('body')[0].appendChild(iDiv);
+			}
             });
             infoWindow.setPosition(pos);
             infoWindow.setContent('You Location');
@@ -65,3 +69,5 @@ function initMap() {
         handleLocationError(false, infoWindow, map.getCenter());
     }
 }
+
+function OnGroupClick(evt){alert(evt.id)};
