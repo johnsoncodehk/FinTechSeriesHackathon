@@ -1,4 +1,4 @@
- /*
+` /*
  * # Semantic UI - 2.2.2
  * https://github.com/Semantic-Org/Semantic-UI
  * http://www.semantic-ui.com/
@@ -17128,8 +17128,8 @@ ol.ui.horizontal.list li:before,
 ---------------------*/
 
 .ui.form {
-  position: relative;
-  max-width: 100%;
+  max-width: 60%;
+  right:10%;
 }
 
 /*--------------------
@@ -24906,6 +24906,8 @@ Floated Menu / Item
   -ms-flex-direction: column;
   flex-direction: column;
   width: 290px;
+  top:200px;
+  height:55%;
   min-height: 0px;
   background: #FFFFFF;
   padding: 0em;
@@ -24920,6 +24922,112 @@ Floated Menu / Item
 }
 
 .ui.card {
+  margin: 1em 0em;
+}
+
+.ui.cards > .card a,
+.ui.card a {
+  cursor: pointer;
+}
+
+.ui.card:first-child {
+  margin-top: 0em;
+}
+
+.ui.card:last-child {
+  margin-bottom: 0em;
+}
+
+.ui.cards.long > .card,
+.ui.card.long {
+  max-width: 100%;
+  position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  width: 100%;
+  top:0px;
+  height:600px;
+  min-height: 0px;
+  background: #FFFFFF;
+  padding: 0em;
+  border: none;
+  border-radius: 0.28571429rem;
+  box-shadow: 0px 1px 3px 0px #D4D4D5, 0px 0px 0px 1px #D4D4D5;
+  -webkit-transition: box-shadow 0.1s ease, -webkit-transform 0.1s ease;
+  transition: box-shadow 0.1s ease, -webkit-transform 0.1s ease;
+  transition: box-shadow 0.1s ease, transform 0.1s ease;
+  transition: box-shadow 0.1s ease, transform 0.1s ease, -webkit-transform 0.1s ease;
+  z-index: '';
+}
+
+.ui.card.long {
+  margin: 1em 0em;
+}
+
+.ui.cards.history > .card,
+.ui.card.history {
+  max-width: 100%;
+  position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  width: 100%;
+  top:0px;
+  height:10%;
+  min-height: 0px;
+  background: #FFFFFF;
+  padding: 0em;
+  border: none;
+  border-radius: 0.28571429rem;
+  box-shadow: 0px 1px 3px 0px #D4D4D5, 0px 0px 0px 1px #D4D4D5;
+  -webkit-transition: box-shadow 0.1s ease, -webkit-transform 0.1s ease;
+  transition: box-shadow 0.1s ease, -webkit-transform 0.1s ease;
+  transition: box-shadow 0.1s ease, transform 0.1s ease;
+  transition: box-shadow 0.1s ease, transform 0.1s ease, -webkit-transform 0.1s ease;
+  z-index: '';
+}
+
+.ui.card.history {
+  margin: 1em 0em;
+}
+
+.ui.cards.post > .card,
+.ui.card.post {
+  max-width: 100%;
+  position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  width: 100%;
+  height:20%;
+  top:0px;
+  min-height: 0px;
+  background: #FFFFFF;
+  padding: 0em;
+  border: none;
+  border-radius: 0.28571429rem;
+  box-shadow: 0px 1px 3px 0px #D4D4D5, 0px 0px 0px 1px #D4D4D5;
+  -webkit-transition: box-shadow 0.1s ease, -webkit-transform 0.1s ease;
+  transition: box-shadow 0.1s ease, -webkit-transform 0.1s ease;
+  transition: box-shadow 0.1s ease, transform 0.1s ease;
+  transition: box-shadow 0.1s ease, transform 0.1s ease, -webkit-transform 0.1s ease;
+  z-index: '';
+}
+
+.ui.card.post {
   margin: 1em 0em;
 }
 
@@ -25042,6 +25150,20 @@ Floated Menu / Item
   border-radius: 0em;
 }
 
+.ui.card.post > .content {
+  -webkit-box-flex: 1;
+  -ms-flex-positive: 1;
+  flex-grow: 1;
+  border: none;
+  border-top: 1px solid rgba(34, 36, 38, 0.1);
+  background: none;
+  margin: 0em;
+  padding: 1em 1em;
+  box-shadow: none;
+  font-size: 1.5em;
+  border-radius: 0em;
+}
+
 .ui.cards > .card > .content:after,
 .ui.card > .content:after {
   display: block;
@@ -25059,7 +25181,12 @@ Floated Menu / Item
   font-family: 'Lato', 'Helvetica Neue', Arial, Helvetica, sans-serif;
   color: rgba(0, 0, 0, 0.85);
 }
-
+.ui.card.post > .content > .header {
+  display: block;
+  margin: '';
+  font-family: 'Lato', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  color: rgba(0, 0, 0, 0.85);
+}
 /* Default Header Size */
 
 .ui.cards > .card > .content > .header:not(.ui),

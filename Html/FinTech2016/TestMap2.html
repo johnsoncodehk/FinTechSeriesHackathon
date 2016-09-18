@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Simple Map</title>
+    <title>Group Shopping Map</title>
 	    <meta name="viewport" content="initial-scale=1.0">
     <meta charset="utf-8">
 	
@@ -12,26 +12,133 @@
         async defer></script>
   </head>
 	<body>
-		<div class="ui left fixed inverted vertical menu" id="MainMenu">
-		    <div class="item">
-				<div class="header">Customer</div>
-				<div class="menu">
-				  <a class="item">Add</a>
-				  <a class="item">List</a>
+		<div class="ui left fixed inverted menu" id="LoginMenu">
+			<div class="ui card">
+			  <div class="content">
+				<a class="header">Login</a>
+				<div class="meta">
+					<div class="ui grid">
+						<div class="sixteen wide column"></div>
+						<div class="sixteen wide column"></div>
+					</div>
+					<center>
+					<div class="field">
+					  <div class="ui input">
+						<input type="text" id="uname" placeholder="User Name">
+					  </div>
+					</div>
+					<div class="field">
+					  <div class="ui input">
+						<input type="password" id="password" placeholder="Password">
+					  </div>
+					</div>
+					</center>
 				</div>
-			</div>
-		    <div class="item">
-				<div class="header">Default Device</div>
-				<div class="menu">
-				  <a class="item">Add</a>
-				  <a class="item">List</a>
+			  </div>
+			  <div class="extra content">
+			<center>
+				<a onclick='onClickLogin(this)'>
+				  Login
+				</a>
+			  </div>
+			</center>
+			<div class="content">
+				<a class="header">Sign in</a>
+				<div class="meta">
+				  <span class="date" id='spanDate'></span>
+					<div class="ui grid">
+						<div class="sixteen wide column"></div>
+					</div>
+					<center>
+					<div class="field">
+					  <div class="ui input">
+						<input type="text" id="uname1" placeholder="User Name">
+					  </div>
+					</div>
+					<div class="field">
+					  <div class="ui input">
+						<input type="password" id="password1" placeholder="Password">
+					  </div>
+					</div>
+					<div class="field">
+					  <div class="ui input">
+						<input type="password" id="cfPassword" placeholder="Confrim Password`">
+					  </div>
+					</div>
+					<div class="field">
+					  <div class="ui input">
+						<input type="text" id="nickname" placeholder="Nick Name">
+					  </div>
+					</div>
+					<div class="field">
+					  <div class="ui input">
+						<input type="text" id="phone" placeholder="Phone No.">
+					  </div>
+					</div>
+					</center>
 				</div>
+			  </div>
+			  <div class="extra content">
+			<center>
+				<a onclick='onClickSignIn(this)'>
+				  Sign in
+				</a>
+			  </div>
+			</center>
+			
 			</div>
 		</div>
-		  <div id="loading" class="ui active dimmer" style="visibility:hidden" >
-    <div class="ui loader"></div>
-  </div>
-		<div id="map"></div>
-
+		<div class="ui left fixed vertical inverted sticky menu" id="PostMenu" style="visibility:hidden;overflow-y:scroll;left: 0px; top: 0px; width: 400px ; height: 100%; margin-top: 0px;">
+			  <div class="content">
+				<a class="header" id="disNickname">Nickname</a>
+			  </div>			<div class="ui card long">
+				<div class="field">
+				  <div class="ui input">
+					<input type="text" id="txtProductName" placeholder="Product Name">
+				  </div>
+				</div>
+				<div class="field">
+				  <div class="ui input">
+					<input type="text" id="txtProductDesc" placeholder="Description">
+				  </div>
+				</div>
+				<div class="field">
+				  <div class="ui input">
+					<input type="text" id="textRemark" placeholder="Remark">
+				  </div>
+				</div>
+				<div class="field">
+				  <div class="ui input">
+					<input type="text" id="txtShop" placeholder="Shop">
+				  </div>
+				</div>
+				<div class="field">
+				  <div class="ui input">
+					<input type="text" id="txtPrice" placeholder="Price">
+				  </div>
+				</div>
+				<div class="field">
+				  <div class="ui input">
+					<input type="text" id="txtQuantity" placeholder="Quantity">
+				  </div>
+				</div>
+				<div class="field">
+				  <div class="ui input">
+					<input type="text" id="textLimitTime" placeholder="LimitTime">
+				  </div>
+				</div>
+			  <button class="ui primary button" type="button" onclick="onClickPost(this)">
+				Post
+			  </button>
+			  </div>
+			</center>
+			</div>
+		</div>
+		<div id="loading" class="ui active dimmer" style="visibility:hidden" >
+			<div class="ui loader"></div>
+		</div>
+		<div id="map" style="hegiht:100%">
+		</div>
+		
 	</body>
 </html>
