@@ -16,10 +16,13 @@ var router = express.Router();
 
 router.post('/', function (req, res) {
     
+    console.log(req.body);
+    
     var reqObj = req.body;
     
-    if (!reqObj.uname || !reqObj.pwd) {
-        res.status('401').send('Login Fail');
+    if (typeof reqObj.uname === 'undefined' 
+      || typeof reqObj.pwd === 'undefined') {
+        res.status('401').send('Login Fail' + reqObj.uname + ", " + reqObj.pwd);
         return;
     }
     
@@ -27,7 +30,7 @@ router.post('/', function (req, res) {
         
       if (err) {
           console.log('login connection err = ' + err);
-          res.status('502').send('Bad Gateway');
+          res.status('502').send('Bad Gateway1');
           return;
       }
       // Use the connection 
@@ -39,7 +42,7 @@ router.post('/', function (req, res) {
 
         if (err) {
             console.error('login-1 err = ' + err);
-            res.status('502').send('Bad Gateway');
+            res.status('502').send('Bad Gateway2');
             return;
         }
           

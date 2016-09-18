@@ -15,120 +15,116 @@ var pool  = mysql.createPool({
 var router = express.Router();
 
 router.get('/', function (req, res) {
-
+    
     pool.getConnection(function(err, connection) {
-
-      if (err) {
-          console.log('request connection err = ' + err);
-          res.status('502').send('Bad Gateway');
-          return;
-      }
-      // Use the connection
-
-      var sql = 'SELECT *, UNIX_TIMESTAMP(END_DATE) AS `EDATE` FROM `ON_AIR_REQUEST` WHERE `END_DATE` > NOW() AND `STATUS` IN (0, 1)';
-
-      connection.query(sql, function(err, rows) {
-
+      
         if (err) {
-            console.error('request-2 err = ' + err);
+            console.log('request connection err = ' + err);
             res.status('502').send('Bad Gateway');
             return;
         }
 
-        var requestIDAry = [];
-        var requestCountObj = {};
-        var requestShopAry= [];
+        // Use the connection 
+        var sql = 'SELECT *, UNIX_TIMESTAMP(END_DATE) AS EDATE FROM ON_AIR_REQUEST WHERE END_DATE > NOW() AND STATUS IN (0,1)';
 
-        rows.forEach(function (row) {
+        connection.query(sql, function(err, rows) {
 
-            if (requestShopAry.indexOf(row.SHOP_ID) === -1) {
-                 requestShopAry.push(row.SHOP_ID);
+            if (err) {
+                console.error('/request err = ' + err);
+                res.status('502').send('Bad Gateway');
+                return;
             }
+            
+            var requestIDAry = [];
+            var requestCountObj = {};
+            var requestShopAry= [];
 
-            if (row.STATUS == 0) {
-                row['count'] = 0;
-            } else {
+            rows.forEach(function (row) {
+                
+                if (requestShopAry.indexOf(row.SHOP_ID) === -1) {
+                    requestShopAry.push(row.SHOP_ID);
+                }
+                
                 requestIDAry.push(row.ID);
-            }
+            });
+              
+            sql = 'SELECT * FROM JOIN_REQUEST WHERE REQUEST_ID IN (?)';
+            var arg = [requestIDAry];
+ 
+            connection.query(sql, arg, function(err, rows2) {
+                
+                if (err) {
+                    console.error('/request-2 err = ' + err);
+                    connection.release();
+                    res.status('502').send('Bad Gateway');
+                    return;
+                }
+
+                rows2.forEach( function(row) {
+                    requestCountObj[row.REQUEST_ID] = requestCountObj[row.REQUEST_ID] + 1 || 1;
+                }); 
+                 
+                sql = 'SELECT * FROM SHOP WHERE SID IN (?)';
+                arg = [requestShopAry];
+
+                connection.query(sql, arg, function(err, rows3) {
+                     
+                    if (err) {
+                        console.error('request-3 err = ' + err);
+                        connection.release();
+                        res.status('502').send('Bad Gateway');
+                        return;
+                    }
+                     
+                    var shopAry = {};
+                    rows3.forEach( function(item) {
+                        var shopObj = {};
+                        shopObj['sid'] = item.SID;
+                        shopObj['shop_name'] = item.SHOP_NAME;
+                        shopObj['shop_location'] = item.SHOP_LOCATION;
+                        shopObj['shop_phone'] = item.SHOP_PHONE;   
+                        shopAry[item.SID] = shopObj;
+                    });
+                     
+                    rows.forEach(function (row) {
+       
+                        row['id'] = row.ID;
+                        row['uid'] = row.UID;
+                        row['price'] = row.PRICE;
+                        row['qty'] = row.QUANTITY;
+                        row['remark'] = row.REMARK;
+                        row['end_date'] = row.EDATE;
+                        row['status'] = row.STATUS;
+                        row['shop_id'] = row.SHOP_ID;
+                        row['product_desc'] = row.PRODUCT_DESC;
+
+                        delete row['PRODUCT_DESC'];
+                        delete row['ID'];
+                        delete row['UID'];
+                        delete row['PRICE'];
+                        delete row['QUANTITY'];
+                        delete row['REMARK'];
+                        delete row['EDATE'];
+                        delete row['STATUS'];
+                        delete row['SHOP_ID'];
+                         
+                        delete row['END_DATE'];
+                        delete row['CREATE_DATE'];
+                        row['count'] = requestCountObj[row.ID] || 0;
+                        row['shop_data'] = shopAry[row.shop_id];
+                    });
+                     
+                    connection.release();
+                    res.status('200').json(rows);
+                 });
+                 
+             });
         });
-
-        sql = 'SELECT * FROM JOIN_REQUEST WHERE REQUEST_ID IN (?)';
-        var arg = [requestIDAry];
-
-         connection.query(sql, arg, function(err, rows2) {
-
-             if (err) {
-                 console.error('request-2 err = ' + err);
-                 connection.release();
-                 res.status('502').send('Bad Gateway');
-                 return;
-             }
-
-             rows2.forEach( function(row) {
-                 requestCountObj[row.REQUEST_ID] = requestCountObj[row.REQUEST_ID] + 1 || 1;
-             });
-
-             sql = 'SELECT * FROM SHOP WHERE SID IN (?)';
-             arg = [requestShopAry];
-
-             connection.query(sql, arg, function(err, rows3) {
-
-                 if (err) {
-                     console.error('request-3 err = ' + err);
-                     connection.release();
-                     res.status('502').send('Bad Gateway');
-                     return;
-                 }
-
-                 var shopAry = {};
-                 rows3.forEach( function(item) {
-                     var shopObj = {};
-                     shopObj['sid'] = item.SID;
-                     shopObj['shop_name'] = item.SHOP_NAME;
-                     shopObj['shop_location'] = item.SHOP_LOCATION;
-                     shopObj['shop_phone'] = item.SHOP_PHONE;
-                     shopAry[item.SID] = shopObj;
-                 });
-
-                 rows.forEach(function (row) {
-
-                     row['id'] = row.ID;
-                     row['uid'] = row.UID;
-                     row['price'] = row.PRICE;
-                     row['qty'] = row.QUANTITY;
-                     row['remark'] = row.REMARK;
-                     row['end_date'] = row.EDATE;
-                     row['status'] = row.STATUS;
-                     row['shop_id'] = row.SHOP_ID;
-                     row['product_desc'] = row.PRODUCT_DESC;
-
-                     delete row['PRODUCT_DESC'];
-                     delete row['ID'];
-                     delete row['UID'];
-                     delete row['PRICE'];
-                     delete row['QUANTITY'];
-                     delete row['REMARK'];
-                     delete row['EDATE'];
-                     delete row['STATUS'];
-                     delete row['SHOP_ID'];
-
-                     delete row['END_DATE'];
-                     delete row['CREATE_DATE'];
-                     row['count'] = requestCountObj[row.ID] || 0;
-                     row['shop_data'] = shopAry[row.shop_id];
-                 });
-
-                 connection.release();
-                 res.status('200').json(rows);
-             });
-
-         });
-      });
     }); // end of pool
 });
 
 router.post('/rid/:rid', function (req, res) {
-
+    
 	if (!req.session.user) {
 		res.redirect('/login');
 		return;
@@ -142,7 +138,7 @@ router.post('/rid/:rid', function (req, res) {
 	}
 
 	pool.getConnection(function(err, connection) {
-
+        
 		if (err) {
 			console.log('create/:rid connection err = ' + err);
 			res.status('502').send('Bad Gateway');
@@ -175,7 +171,7 @@ router.post('/rid/:rid', function (req, res) {
             var arg = [rid];
 
             connection.query(sql, arg, function(err, rows) {
-
+                
                 if (err) {
                     console.error('join-2 err = ' + err);
                     connection.release();
@@ -195,15 +191,15 @@ router.post('/rid/:rid', function (req, res) {
                 arg = [rid, req.session.user.ID];
 
                 connection.query(sql, arg, function(err, rows) {
-
+                    
                     if (err) {
                         console.error('join-3 err = ' + err);
                         connection.release();
                         res.status('502').send('Bad Gateway');
                         return;
                     }
-
-					var newState = 1;
+                    
+                    var newState = 1;
 					if (rows.length >= maxJoinCount - 1) {
 						newState = 2
 					}
@@ -222,7 +218,6 @@ router.post('/rid/:rid', function (req, res) {
 
 						connection.release();
 						res.status('200').send('join Success');
-
 					});
                 });
             });
@@ -231,134 +226,125 @@ router.post('/rid/:rid', function (req, res) {
 });
 
 router.get('/history', function (req, res) {
-
-     if (!req.session.user) {
+    
+    if (!req.session.user) {
        res.redirect('/login');
        return;
-    }
-
+    } 
+    
     var uid = req.session.user.ID;
-
+    
     pool.getConnection(function(err, connection) {
-
-      if (err) {
-          console.log('request connection err = ' + err);
-          res.status('502').send('Bad Gateway');
-          return;
-      }
-      // Use the connection
-
-      var sql = 'SELECT *,UNIX_TIMESTAMP(END_DATE) AS EDATE FROM ON_AIR_REQUEST';
-      connection.query(sql, function(err, rows) {
-
+      
         if (err) {
-            console.error('request-2 err = ' + err);
+            console.log('request connection err = ' + err);
             res.status('502').send('Bad Gateway');
             return;
         }
+        // Use the connection 
+        
+        var sql = 'SELECT *,UNIX_TIMESTAMP(END_DATE) AS EDATE FROM ON_AIR_REQUEST';
+        connection.query(sql, function(err, rows) {
 
-        var requestIDAry = [];
-        var requestCountObj = {};
-        var requestShopAry= [];
-        var requestFilterAry = [];
-        var filteredAry = [];
-
-        rows.forEach(function (row) {
-
-            if (requestShopAry.indexOf(row.SHOP_ID) === -1) {
-                 requestShopAry.push(row.SHOP_ID);
+            if (err) {
+                console.error('request-2@ err = ' + err);
+                res.status('502').send('Bad Gateway');
+                return;
             }
-
-            if (row.STATUS == 0) {
-                row['count'] = 0;
-            } else {
+              
+            var requestIDAry = [];
+            var requestCountObj = {};
+            var requestShopAry= [];
+            var requestFilterAry = [];
+            var filteredAry = [];
+            
+            rows.forEach(function (row) {
+                
+                if (requestShopAry.indexOf(row.SHOP_ID) === -1) {
+                     requestShopAry.push(row.SHOP_ID);
+                }
+                
                 requestIDAry.push(row.ID);
-            }
+            });
+              
+            sql = 'SELECT * FROM JOIN_REQUEST WHERE REQUEST_ID IN (?)';
+            var arg = [requestIDAry];
+
+            connection.query(sql, arg, function(err, rows2) {
+                
+                if (err) {
+                    console.error('request-2 err = ' + err);
+                    connection.release();
+                    res.status('502').send('Bad Gateway');
+                    return;
+                }
+
+                rows2.forEach( function(row) {
+                    requestCountObj[row.REQUEST_ID] = requestCountObj[row.REQUEST_ID] + 1 || 1;
+                    if (row.UID === uid) {
+                        requestFilterAry.push(row.REQUEST_ID);
+                    }
+                }); 
+                 
+                sql = 'SELECT * FROM SHOP WHERE SID IN (?)';
+                arg = [requestShopAry];
+
+                connection.query(sql, arg, function(err, rows3) {
+                     
+                    if (err) {
+                        console.error('request-3 err = ' + err);
+                        connection.release();
+                        res.status('502').send('Bad Gateway');
+                        return;
+                    }
+                     
+                    var shopAry = {};
+                    rows3.forEach( function(item) {
+                        var shopObj = {};
+                        shopObj['sid'] = item.SID;
+                        shopObj['shop_name'] = item.SHOP_NAME;
+                        shopObj['shop_location'] = item.SHOP_LOCATION;
+                        shopObj['shop_phone'] = item.SHOP_PHONE;   
+                        shopAry[item.SID] = shopObj;
+                    });
+                     
+                    rows.forEach(function (row) {
+       
+                        if (row.UID === uid || requestFilterAry.indexOf(row.ID) !== -1) {
+                            row['id'] = row.ID;
+                            row['uid'] = row.UID;
+                            row['price'] = row.PRICE;
+                            row['qty'] = row.QUANTITY;
+                            row['remark'] = row.REMARK;
+                            row['end_date'] = row.EDATE;
+                            row['status'] = row.STATUS;
+                            row['shop_id'] = row.SHOP_ID;
+                            row['product_desc'] = row.PRODUCT_DESC;
+
+                            delete row['PRODUCT_DESC'];
+                            delete row['ID'];
+                            delete row['UID'];
+                            delete row['PRICE'];
+                            delete row['QUANTITY'];
+                            delete row['REMARK'];
+                            delete row['EDATE'];
+                            delete row['STATUS'];
+                            delete row['SHOP_ID'];
+                            delete row['END_DATE'];
+                            delete row['CREATE_DATE'];
+                            row['count'] = requestCountObj[row.ID] || 0;
+                            row['shop_data'] = shopAry[row.shop_id];
+                             
+                            filteredAry.push(row);
+                         }
+                    });
+                     
+                    connection.release();
+                    res.status('200').json(filteredAry);
+                }); 
+            });
         });
-
-        sql = 'SELECT * FROM JOIN_REQUEST WHERE REQUEST_ID IN (?)';
-        var arg = [requestIDAry];
-
-         connection.query(sql, arg, function(err, rows2) {
-
-             if (err) {
-                 console.error('request-2 err = ' + err);
-                 connection.release();
-                 res.status('502').send('Bad Gateway');
-                 return;
-             }
-
-             rows2.forEach( function(row) {
-                 requestCountObj[row.REQUEST_ID] = requestCountObj[row.REQUEST_ID] + 1 || 1;
-                 if (row.UID === uid) {
-                     requestFilterAry.push(row.REQUEST_ID);
-                 }
-             });
-
-             sql = 'SELECT * FROM SHOP WHERE SID IN (?)';
-             arg = [requestShopAry];
-
-             connection.query(sql, arg, function(err, rows3) {
-
-                 if (err) {
-                     console.error('request-3 err = ' + err);
-                     connection.release();
-                     res.status('502').send('Bad Gateway');
-                     return;
-                 }
-
-                 var shopAry = {};
-                 rows3.forEach( function(item) {
-                     var shopObj = {};
-                     shopObj['sid'] = item.SID;
-                     shopObj['shop_name'] = item.SHOP_NAME;
-                     shopObj['shop_location'] = item.SHOP_LOCATION;
-                     shopObj['shop_phone'] = item.SHOP_PHONE;
-                     shopAry[item.SID] = shopObj;
-                 });
-
-                 rows.forEach(function (row) {
-
-                     if (row.UID === uid || requestFilterAry.indexOf(row.ID) !== -1) {
-                         row['id'] = row.ID;
-                         row['uid'] = row.UID;
-                         row['price'] = row.PRICE;
-                         row['qty'] = row.QUANTITY;
-                         row['remark'] = row.REMARK;
-                         row['end_date'] = row.EDATE;
-                         row['status'] = row.STATUS;
-                         row['shop_id'] = row.SHOP_ID;
-                         row['product_desc'] = row.PRODUCT_DESC;
-
-                         delete row['PRODUCT_DESC'];
-                         delete row['ID'];
-                         delete row['UID'];
-                         delete row['PRICE'];
-                         delete row['QUANTITY'];
-                         delete row['REMARK'];
-                         delete row['EDATE'];
-                         delete row['STATUS'];
-                         delete row['SHOP_ID'];
-
-                         delete row['END_DATE'];
-                         delete row['CREATE_DATE'];
-                         row['count'] = requestCountObj[row.ID] || 0;
-                         row['shop_data'] = shopAry[row.shop_id];
-
-                         filteredAry.push(row);
-                     }
-
-
-                 });
-
-                 connection.release();
-                 res.status('200').json(filteredAry);
-             });
-
-         });
-      });
     }); // end of pool
 });
-
 
 module.exports = router;

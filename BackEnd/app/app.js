@@ -25,15 +25,17 @@ var login = require('./routes/login');
 var app = express();
 
 // All environment settings
-// app.set('port', process.env.PORT || 8080);
-app.set('port', process.env.PORT || 9600);
+app.set('port', process.env.PORT || 8080);
+// app.set('port', process.env.PORT || 9600);
 
 // Middleware section
-// 
+
+// CORS Enabled
 app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "X-Requested-With");
-  next();
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "X-Requested-With");
+    res.header('Content-Type: application/json');
+    next();
 });
 
 // Express session middleware

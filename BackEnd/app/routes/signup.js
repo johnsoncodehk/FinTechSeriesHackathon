@@ -16,10 +16,17 @@ var router = express.Router();
 
 router.post('/', function (req, res) {
     
+    console.log(req.body);
+    console.log(req.params);
+    
     var reqObj = req.body;
     
-    if (!reqObj.uname || !reqObj.pwd || !reqObj.phoneNo || !reqObj.nickname) {
+    if (typeof reqObj.uname === 'undefined' 
+      || typeof reqObj.pwd === 'undefined'
+      || typeof reqObj.phoneNo === 'undefined'
+      || typeof reqObj.nickname === 'undefined') {
         res.status('403').send('Wrong Input');
+        return;
     }
     
     pool.getConnection(function(err, connection) {
