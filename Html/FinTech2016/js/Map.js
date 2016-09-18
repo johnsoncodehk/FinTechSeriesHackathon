@@ -134,6 +134,7 @@ function onClickShowItemList(evt) {
 			card.className = "ui card post";
 			card.name = "ui_card_post";
 			card.id = index + "_" + evt.shopID;
+			card.sid = item.item_data.id;
 			
 			cardContent = document.createElement('div');
 			cardContent.className = "content";
@@ -146,6 +147,9 @@ function onClickShowItemList(evt) {
 			cardDesc.className = "description";
 			cardDesc.innerHTML = item.count + " / " + item.qty;
 			cardContent.appendChild(cardDesc);
+			
+			card.removeEventListener('click', function(){onClickJoin(this)});
+			card.addEventListener('click', function(){onClickJoin(this)});
 			
 			iDiv.appendChild(card);
 		}
@@ -205,6 +209,15 @@ function onClickPost(){
 function onClickLoginTest(evt) {
 	document.getElementById('LoginMenu').style.visibility = 'hidden';
 	document.getElementById('PostMenu').style.visibility = 'visible';
+};
+
+function onClickJoin(evt) {
+	var obj = {
+		sid:evt.sid
+	}
+	sendRequest("POST", "/rid/" + sid, obj, function() {
+		getneargroup();
+	});;
 };
 
 function sendRequest(method, fnPath, obj, cb) {
